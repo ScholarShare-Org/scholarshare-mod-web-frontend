@@ -12,7 +12,7 @@ const { Title } = Typography;
 export default function OpportunitiesPage() {
     const { message } = App.useApp();
     const [data, setData] = useState<Opportunity[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     // Filter States
     const [searchText, setSearchText] = useState('');
@@ -239,7 +239,11 @@ export default function OpportunitiesPage() {
                 </Row>
             </Card>
 
-            {(loading || filteredData.length > 0) ? (
+            {loading ? (
+                <Card loading variant="borderless" className="text-center py-12">
+                    <Typography.Text type="secondary">Loading opportunities...</Typography.Text>
+                </Card>
+            ) : filteredData.length > 0 ? (
                 <Table
                     columns={columns}
                     dataSource={filteredData}
