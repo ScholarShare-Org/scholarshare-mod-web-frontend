@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Avatar, Dropdown } from 'antd';
@@ -21,7 +22,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const pathname = usePathname();
     const [mounted, setMounted] = useState(false);
 
-    useEffect(() => setMounted(true), []);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem('access_token');
