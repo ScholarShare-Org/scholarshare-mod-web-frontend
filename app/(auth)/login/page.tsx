@@ -1,26 +1,29 @@
 'use client';
-import React from 'react';
-import { Form, Input, Button, Card, message, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Form, Input, Button, Card, Typography, App } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import { LoginValues } from '@/types';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 export default function LoginPage() {
+    const { message } = App.useApp();
     const router = useRouter();
-    const [loading, setLoading] = React.useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const onFinish = async (values: any) => {
+    const onFinish = async (values: LoginValues) => {
         setLoading(true);
         try {
-            // Replace with actual API call: const res = await api.post('/auth/mod/login', values);
-            // Mocking success for MVP setup:
-            console.log('Login values:', values);
-            localStorage.setItem('access_token', 'mock_token_123');
+            const res = await api.post('/auth/login', values);
+            const { access_token } = res.data;
+
+            localStorage.setItem('access_token', access_token);
             message.success('Login successful');
             router.push('/');
         } catch (error) {
+            console.error('Login error:', error);
             message.error('Invalid credentials');
         } finally {
             setLoading(false);

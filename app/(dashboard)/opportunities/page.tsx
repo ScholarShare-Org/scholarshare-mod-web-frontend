@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Space, Button, Popconfirm, message, Typography, Tooltip } from 'antd';
+import { Table, Tag, Button, Popconfirm, App, Space, Tooltip, Typography } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import api from '@/lib/api';
@@ -9,59 +9,43 @@ import { Opportunity } from '@/types';
 const { Title } = Typography;
 
 export default function OpportunitiesPage() {
+    const { message } = App.useApp();
     const [data, setData] = useState<Opportunity[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            // const res = await api.get('/mod/opportunities');
-            // setData(res.data);
-
-            // Mock data for MVP
-            const mockData: Opportunity[] = [
-                {
-                    id: '1',
-                    title: 'Google Generation Scholarship',
-                    short_description: 'For women in tech',
-                    full_description: 'Full details...',
-                    category: 'Scholarship',
-                    eligibility_criteria: 'Women in CS',
-                    deadline: new Date('2025-12-31').toISOString(),
-                    source_url: 'https://google.com',
-                    is_live: true,
-                },
-                {
-                    id: '2',
-                    title: 'Frontend Intern at Vercel',
-                    short_description: 'React developer needed',
-                    full_description: 'Full details...',
-                    category: 'Internship',
-                    eligibility_criteria: 'React knowledge',
-                    deadline: new Date('2024-05-01').toISOString(),
-                    source_url: 'https://vercel.com',
-                    is_live: false,
-                }
-            ];
-            setData(mockData);
-        } catch (error) {
-            message.error('Failed to load opportunities');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        fetchData();
-    }, []);
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                // Removed /api/v1 prefix as it's already in baseURL
+                const res = await api.get('/moderator/opportunities');
+                // Map API response to UI model
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const mappedData = res.data.opportunities.map((item: any) => ({
+                    ...item,
+                    category: item.category_name, // Map category_name to category for display
+                    is_live: !item.expired,       // Map expired to is_live
+                }));
+                setData(mappedData);
+            } catch (error) {
+                console.error('Fetch error:', error);
+                message.error('Failed to load opportunities');
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const handleDelete = async (id: string) => {
+        fetchData();
+    }, [message]);
+
+    const handleDelete = async (id: number) => {
         try {
-            // await api.delete(`/mod/opportunities/${id}`);
-            message.success('Opportunity archived successfully');
+            await api.delete(`/moderator/opportunities/${id}`);
+            message.success('Opportunity deleted successfully');
             setData((prev) => prev.filter((item) => item.id !== id));
         } catch (error) {
-            message.error('Failed to archive opportunity');
+            console.error('Delete error:', error);
+            message.error('Failed to delete opportunity');
         }
     };
 
@@ -74,7 +58,7 @@ export default function OpportunitiesPage() {
         },
         {
             title: 'Category',
-            dataIndex: 'category',
+            dataIndex: 'category_name', // Updated to match API
             key: 'category',
             render: (category: string) => {
                 let color = 'geekblue';
@@ -82,29 +66,29 @@ export default function OpportunitiesPage() {
                 if (category === 'Internship') color = 'blue';
                 if (category === 'Workshop') color = 'green';
                 if (category === 'Competition') color = 'purple';
-                return <Tag color={color}>{category.toUpperCase()}</Tag>;
+                return <Tag color={color}>{category ? category.toUpperCase() : 'OTHER'}</Tag>;
             },
         },
         {
             title: 'Deadline',
             dataIndex: 'deadline',
             key: 'deadline',
-            render: (date: string) => new Date(date).toLocaleDateString(),
+            render: (date: string) => date ? new Date(date).toLocaleDateString() : 'No Deadline',
         },
         {
             title: 'Status',
-            dataIndex: 'is_live',
-            key: 'is_live',
-            render: (isLive: boolean) => (
-                <Tag color={isLive ? 'success' : 'error'}>
-                    {isLive ? 'LIVE' : 'ARCHIVED'}
+            dataIndex: 'expired', // Updated to match API
+            key: 'status',
+            render: (expired: boolean) => (
+                <Tag color={!expired ? 'success' : 'error'}>
+                    {!expired ? 'LIVE' : 'EXPIRED'}
                 </Tag>
             ),
         },
         {
             title: 'Actions',
             key: 'actions',
-            render: (_: any, record: Opportunity) => (
+            render: (_: unknown, record: Opportunity) => (
                 <Space size="middle">
                     <Link href={`/opportunities/${record.id}`}>
                         <Tooltip title="Edit">

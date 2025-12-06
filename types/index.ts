@@ -1,15 +1,30 @@
 export interface Opportunity {
-  id?: string;
+  id?: number;
   title: string;
-  short_description: string;
-  full_description: string;
-  category: 'Scholarship' | 'Internship' | 'Workshop' | 'Competition';
-  eligibility_criteria: string;
+  description?: string; // Not in list view
+  category_name: string;
+  type: string;
   deadline: string;
-  source_url: string;
-  is_live: boolean;
+  source: string;
+  expired: boolean;
   image_url?: string;
   created_at?: string;
+}
+
+export interface LoginValues {
+  email: string;
+  password: string;
+}
+
+export interface OpportunityFormValues {
+  title: string;
+  category: number;
+  short_description: string;
+  full_description: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  deadline: any;
+  source_url: string;
+  eligibility_criteria?: string;
 }
 
 export interface AuthResponse {
