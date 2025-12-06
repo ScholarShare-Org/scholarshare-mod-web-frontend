@@ -11,6 +11,7 @@ export interface Opportunity {
   image_url?: string;
   created_at?: string;
   eligibility?: string; // Added field
+  is_verified?: boolean; // Added for status logic
 }
 
 export interface LoginValues {
@@ -32,4 +33,20 @@ export interface OpportunityFormValues {
 export interface AuthResponse {
   access_token: string;
   token_type: string;
+}
+
+export interface ModeratorProfile {
+  id: number;
+  full_name: string;
+  email: string;
+  role: string;
+  image_url?: string;
+  phone_number?: string;
+  institution?: string;
+  employee_id?: string;
+  stats?: {
+    opportunities_created: number;
+    opportunities_verified: number;
+    pending_actions: number;
+  };
 }
