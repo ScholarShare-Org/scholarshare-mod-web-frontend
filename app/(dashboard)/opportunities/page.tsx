@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Table, Tag, Button, Popconfirm, App, Space, Tooltip, Typography } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, PlusOutlined, EyeOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import api from '@/lib/api';
 import { Opportunity } from '@/types';
@@ -91,9 +91,9 @@ export default function OpportunitiesPage() {
             render: (_: unknown, record: Opportunity) => (
                 <Space size="middle">
                     <Link href={`/opportunities/${record.id}`}>
-                        <Tooltip title="Edit">
-                            <Button icon={<EditOutlined />} />
-                        </Tooltip>
+                        <Button type="default" icon={<EyeOutlined />}>
+                            Preview Opportunity
+                        </Button>
                     </Link>
                     <Popconfirm
                         title="Are you sure you want to archive this?"
