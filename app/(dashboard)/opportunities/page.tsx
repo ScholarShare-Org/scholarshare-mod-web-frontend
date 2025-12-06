@@ -80,17 +80,27 @@ export default function OpportunitiesPage() {
             title: 'Deadline',
             dataIndex: 'deadline',
             key: 'deadline',
-            render: (date: string) => date ? new Date(date).toLocaleDateString() : 'No Deadline',
+            render: (date: string) => date ? new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'No Deadline',
         },
         {
             title: 'Status',
-            dataIndex: 'expired', // Updated to match API
             key: 'status',
-            render: (expired: boolean) => (
-                <Tag color={!expired ? 'success' : 'error'}>
-                    {!expired ? 'LIVE' : 'EXPIRED'}
-                </Tag>
-            ),
+            render: (_: unknown, record: Opportunity) => {
+                const isExpired = (record.deadline && new Date(record.deadline) < new Date()) || record.expired;
+                let status = { label: 'To be Verified', color: 'warning' };
+
+                if (isExpired) {
+                    status = { label: 'Expired', color: 'error' };
+                } else if (record.is_verified) {
+                    status = { label: 'Live', color: 'success' };
+                }
+
+                return (
+                    <Tag color={status.color}>
+                        {status.label.toUpperCase()}
+                    </Tag>
+                );
+            },
         },
         {
             title: 'Actions',
@@ -129,13 +139,16 @@ export default function OpportunitiesPage() {
         const matchesCategory = selectedCategory ? item.category_name === selectedCategory : true;
 
         // 3. Status
-        // is_live is true if !expired. So 'live' matches !expired, 'closed' matches expired.
-        // let's stick to the Select values 'live' and 'closed'
         let matchesStatus = true;
+
+        const isExpired = (item.deadline && new Date(item.deadline) < new Date()) || item.expired;
+
         if (selectedStatus === 'live') {
-            matchesStatus = !item.expired;
-        } else if (selectedStatus === 'closed') {
-            matchesStatus = item.expired;
+            matchesStatus = !isExpired && !!item.is_verified;
+        } else if (selectedStatus === 'expired') {
+            matchesStatus = !!isExpired;
+        } else if (selectedStatus === 'pending') {
+            matchesStatus = !isExpired && !item.is_verified;
         }
 
         // 4. Deadline
@@ -202,7 +215,8 @@ export default function OpportunitiesPage() {
                             allowClear
                         >
                             <Select.Option value="live">Live</Select.Option>
-                            <Select.Option value="closed">Closed</Select.Option>
+                            <Select.Option value="expired">Expired</Select.Option>
+                            <Select.Option value="pending">To be Verified</Select.Option>
                         </Select>
                     </Col>
                     <Col xs={24} md={5}>
