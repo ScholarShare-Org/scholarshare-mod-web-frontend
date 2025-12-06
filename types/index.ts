@@ -1,14 +1,16 @@
 export interface Opportunity {
   id?: number;
   title: string;
-  description?: string; // Not in list view
-  category_name: string;
+  description?: string;
+  category_name?: string; // API might return this
+  category?: string; // Or this depending on mapping
   type: string;
   deadline: string;
   source: string;
   expired: boolean;
   image_url?: string;
   created_at?: string;
+  eligibility?: string; // Added field
 }
 
 export interface LoginValues {
