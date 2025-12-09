@@ -161,8 +161,8 @@ export default function CreateOpportunityPage() {
                     </Col>
                 </Row>
 
-                <Form.Item name="short_description" label="Short Description (Card View)" rules={[{ required: true, min: 10, max: 200 }]}>
-                    <TextArea rows={2} showCount maxLength={200} placeholder="Brief summary visible on the card..." />
+                <Form.Item name="short_description" label="Short Description (Card View)" rules={[{ required: true, min: 10, max: 350 }]}>
+                    <TextArea rows={2} showCount maxLength={350} placeholder="Brief summary visible on the card..." />
                 </Form.Item>
 
                 <Form.Item name="full_description" label="Full Details & Benefits" rules={[{ required: true, min: 20 }]}>
