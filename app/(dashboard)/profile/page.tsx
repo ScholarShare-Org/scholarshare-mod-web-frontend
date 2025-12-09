@@ -11,31 +11,19 @@ import {
     TeamOutlined,
     RiseOutlined
 } from '@ant-design/icons';
-import api from '@/lib/api';
-import { ModeratorProfile } from '@/types';
-
+import { useUser } from '@/context/UserContext';
 const { Title, Text } = Typography;
 
 export default function ProfilePage() {
     const { message } = App.useApp();
-    const [loading, setLoading] = useState(true);
-    const [profile, setProfile] = useState<ModeratorProfile | null>(null);
+    const { user: profile, loading } = useUser();
 
     useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const res = await api.get('/moderator/profile');
-                setProfile(res.data);
-            } catch (error) {
-                console.error("Failed to fetch profile:", error);
-                message.error('Failed to load profile data.');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProfile();
-    }, [message]);
+        if (!loading && !profile) {
+            // Optional: Handle case where user is null but not loading (e.g., failed to fetch)
+            message.error("Could not load latest profile data");
+        }
+    }, [loading, profile, message]);
 
     const formatDate = (dateString: string) => {
         if (!dateString) return '';
