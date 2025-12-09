@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Table, Tag, Button, Space, Tooltip, Typography, Input, Select, Card, Row, Col, App, Avatar, DatePicker } from 'antd';
-import { EyeOutlined, SearchOutlined, ReloadOutlined, FilterOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
+import { EyeOutlined, SearchOutlined, ReloadOutlined, FilterOutlined, GlobalOutlined, UserOutlined, DownloadOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import Link from 'next/link';
 import api from '@/lib/api';
@@ -129,6 +129,104 @@ export default function GlobalOpportunitiesPage() {
         return matchesSearch && matchesCategory && matchesStatus && matchesDeadline;
     });
 
+    // Export to CSV Logic
+    const handleExport = async () => {
+        try {
+            message.loading({ content: 'Preparing export... (fetching all records)', key: 'exportMsg', duration: 0 });
+
+            let allOpportunities: Opportunity[] = [];
+            let currentPage = 1;
+            const pageSize = 50; // Safe limit to avoid 422
+            let hasMore = true;
+
+            // Helper to clean params
+            const getCleanParams = (page: number) => {
+                const params = {
+                    page,
+                    page_size: pageSize,
+                    search: searchText,
+                    category_id: selectedCategory,
+                    status_filter: selectedStatus || 'all',
+                };
+                return Object.fromEntries(
+                    Object.entries(params).filter(([_, v]) => v != null && v !== '')
+                );
+            };
+
+            // Loop to fetch all pages
+            while (hasMore) {
+                const res = await api.get('/moderator/global-opportunities', { params: getCleanParams(currentPage) });
+                const { opportunities, pagination } = res.data;
+
+                if (opportunities && Array.isArray(opportunities)) {
+                    allOpportunities = [...allOpportunities, ...opportunities]; // eslint-disable-line @typescript-eslint/no-explicit-any
+                }
+
+                // Check if we reached the end
+                if (pagination && pagination.total_items) {
+                    const loadedCount = (currentPage - 1) * pageSize + (opportunities?.length || 0);
+                    if (loadedCount >= pagination.total_items || (opportunities?.length || 0) < pageSize) {
+                        hasMore = false;
+                    } else {
+                        currentPage++;
+                    }
+                } else {
+                    // Fallback if pagination metadata is missing: stop if less than page size returned
+                    if (!opportunities || opportunities.length < pageSize) {
+                        hasMore = false;
+                    } else {
+                        currentPage++;
+                    }
+                }
+
+                // Safety break for loop
+                if (currentPage > 20) break; // Limit to 1000 items max for safety
+            }
+
+            if (allOpportunities.length === 0) {
+                message.warning({ content: 'No data to export', key: 'exportMsg' });
+                return;
+            }
+
+            // Convert to CSV
+            const csvHeaders = ['ID', 'Title', 'Creator', 'Category', 'Status', 'Deadline', 'Source', 'Engagement'];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const csvRows = allOpportunities.map((item: any) => {
+                const statusLabel = item.is_verified ? 'Verified' : 'Pending';
+                // Escape quotes in strings
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const clean = (str: any) => `"${String(str || '').replace(/"/g, '""')}"`;
+
+                return [
+                    item.id,
+                    clean(item.title),
+                    clean(item.creator_name),
+                    clean(item.category_name),
+                    clean(statusLabel),
+                    item.deadline ? dayjs(item.deadline).format('YYYY-MM-DD') : '',
+                    clean(item.source),
+                    item.total_engagement || 0
+                ].join(',');
+            });
+
+            const csvString = [csvHeaders.join(','), ...csvRows].join('\r\n');
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `global-opportunities-${dayjs().format('YYYY-MM-DD')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            message.success({ content: `Exported ${allOpportunities.length} records successfully`, key: 'exportMsg' });
+
+        } catch (error) {
+            console.error('Export error:', error);
+            message.error({ content: 'Failed to generate report', key: 'exportMsg' });
+        }
+    };
+
     const columns = [
         {
             title: 'Opportunity Info',
@@ -225,6 +323,13 @@ export default function GlobalOpportunitiesPage() {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <Title level={2} style={{ margin: 0 }}>Global Opportunities</Title>
+                <Button
+                    type="primary"
+                    icon={<DownloadOutlined />}
+                    onClick={handleExport}
+                >
+                    Download Report
+                </Button>
             </div>
 
             {/* Filter Bar */}
