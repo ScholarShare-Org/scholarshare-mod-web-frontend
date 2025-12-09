@@ -8,7 +8,8 @@ import {
     AppstoreOutlined,
     PlusCircleOutlined,
     UnorderedListOutlined,
-    UserOutlined
+    UserOutlined,
+    TrophyOutlined
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -29,6 +30,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         { key: '/', icon: <AppstoreOutlined />, label: <Link href="/">Dashboard</Link> },
         { key: '/opportunities/create', icon: <PlusCircleOutlined />, label: <Link href="/opportunities/create">Create New</Link> },
         { key: '/opportunities', icon: <UnorderedListOutlined />, label: <Link href="/opportunities">All Posts</Link> },
+        { key: '/leaderboard', icon: <TrophyOutlined />, label: <Link href="/leaderboard">Leaderboard</Link> },
         { key: '/profile', icon: <UserOutlined />, label: <Link href="/profile">Profile</Link> },
     ];
 

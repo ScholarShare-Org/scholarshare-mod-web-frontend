@@ -53,3 +53,20 @@ export interface ModeratorProfile {
   rank: number;
   joined_at: string;
 }
+
+export interface LeaderboardEntry {
+  rank: number;
+  mod_id: number;
+  name: string;
+  total_posts: number;
+  total_engagement: number;
+  avg_engagement: number;
+  category_name?: string | null;
+}
+
+export interface LeaderboardResponse {
+  period: string;
+  total_moderators: number;
+  current_mod_rank: number;
+  leaderboard: LeaderboardEntry[];
+}
