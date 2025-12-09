@@ -117,7 +117,7 @@ export default function ProfilePage() {
                                 title="Total Posts"
                                 value={profile.stats.total_posts}
                                 prefix={<FileTextOutlined className="text-gray-400" />}
-                                valueStyle={{ color: '#595959' }}
+                                styles={{ content: { color: '#595959' } }}
                             />
                         </Card>
                     </Col>
@@ -127,7 +127,7 @@ export default function ProfilePage() {
                                 title="Verified"
                                 value={profile.stats.verified_posts}
                                 prefix={<CheckCircleOutlined className="text-green-500" />}
-                                valueStyle={{ color: '#3f8600' }}
+                                styles={{ content: { color: '#3f8600' } }}
                             />
                         </Card>
                     </Col>
@@ -137,7 +137,7 @@ export default function ProfilePage() {
                                 title="Pending"
                                 value={profile.stats.pending_posts}
                                 prefix={<ClockCircleOutlined className="text-yellow-500" />}
-                                valueStyle={{ color: '#faad14' }}
+                                styles={{ content: { color: '#faad14' } }}
                             />
                         </Card>
                     </Col>
@@ -147,7 +147,7 @@ export default function ProfilePage() {
                                 title="Rejected"
                                 value={profile.stats.rejected_posts}
                                 prefix={<CloseCircleOutlined className="text-red-500" />}
-                                valueStyle={{ color: '#cf1322' }}
+                                styles={{ content: { color: '#cf1322' } }}
                             />
                         </Card>
                     </Col>

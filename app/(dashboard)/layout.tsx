@@ -13,6 +13,7 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import api from '@/lib/api';
 
 const { Header, Sider, Content } = Layout;
 
@@ -21,13 +22,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const router = useRouter();
     const pathname = usePathname();
     const [mounted, setMounted] = useState(false);
+    const [userName, setUserName] = useState<string | null>(null);
+    const [loadingUser, setLoadingUser] = useState(true);
 
     useEffect(() => {
         setMounted(true);
         const token = localStorage.getItem('access_token');
         if (!token) {
             router.push('/login');
+            return;
         }
+
+        const fetchProfile = async () => {
+            try {
+                // We use the same endpoint as the profile page
+                const res = await api.get('/moderator/profile');
+                setUserName(res.data.name);
+            } catch (err) {
+                console.error("Failed to fetch user name for header:", err);
+                // Fallback is handled in render
+            } finally {
+                setLoadingUser(false);
+            }
+        };
+
+        fetchProfile();
     }, [router]);
 
     const handleLogout = () => {
@@ -68,7 +87,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         style={{ fontSize: '16px', width: 64, height: 64 }}
                     />
                     <div className="flex items-center gap-4">
-                        <span className="text-gray-600 font-medium">Moderator Admin</span>
+                        {loadingUser ? (
+                            <div className="flex flex-col items-end justify-center h-full">
+                                <div className="h-3 w-16 bg-gray-200 rounded animate-pulse mb-1"></div>
+                                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col text-right">
+                                {/* Hide 'Welcome' on mobile, show on medium screens+ */}
+                                <span className="hidden md:inline text-xs text-gray-500">Welcome,</span>
+                                <span className="font-bold text-sm truncate max-w-[120px] md:max-w-none text-gray-800">
+                                    {userName || "Moderator"}
+                                </span>
+                            </div>
+                        )}
                         <Button icon={<LogoutOutlined />} onClick={handleLogout} danger>Logout</Button>
                     </div>
                 </Header>
