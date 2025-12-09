@@ -66,7 +66,17 @@ export default function OpportunityDetailsPage() {
     }
 
     // derived state for checks
-    const isExpired = opportunity.expired;
+    // Derived State: Status Logic (Replicated from Manage Opportunities Table)
+    const isExpired = (opportunity.deadline && new Date(opportunity.deadline) < new Date()) || opportunity.expired;
+
+    let status = { label: 'To be Verified', color: 'warning' };
+
+    if (isExpired) {
+        status = { label: 'Expired', color: 'error' };
+    } else if (opportunity.is_verified) {
+        status = { label: 'Live', color: 'success' };
+    }
+
     const categoryName = opportunity.category_name || opportunity.category || 'Uncategorized';
 
     return (
@@ -114,8 +124,8 @@ export default function OpportunityDetailsPage() {
                                 <Tag color="geekblue">{String(categoryName).toUpperCase()}</Tag>
                             </Descriptions.Item>
                             <Descriptions.Item label="Status">
-                                <Tag color={!isExpired ? 'success' : 'error'}>
-                                    {!isExpired ? 'LIVE' : 'EXPIRED'}
+                                <Tag color={status.color}>
+                                    {status.label.toUpperCase()}
                                 </Tag>
                             </Descriptions.Item>
                             <Descriptions.Item label="Deadline">
