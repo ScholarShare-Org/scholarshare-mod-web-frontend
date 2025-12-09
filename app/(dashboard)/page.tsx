@@ -15,34 +15,41 @@ import {
 import Link from 'next/link';
 import { useUser } from '@/context/UserContext';
 import api from '@/lib/api';
-import { Opportunity } from '@/types';
+import { Opportunity, LeaderboardResponse } from '@/types';
+import LeaderboardSummary from '@/components/LeaderboardSummary';
 
 const { Title, Text } = Typography;
 
 export default function DashboardHome() {
     const { user, loading: userLoading } = useUser();
     const [recentPosts, setRecentPosts] = useState<Opportunity[]>([]);
+    const [leaderboardData, setLeaderboardData] = useState<LeaderboardResponse | null>(null);
     const [postsLoading, setPostsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchRecentPosts = async () => {
+        const fetchData = async () => {
             try {
-                // Fetch only 5 items for the overview
-                const res = await api.get('/moderator/opportunities?page=1&page_size=5');
-                const mappedData = res.data.opportunities.map((item: any) => ({
+                // Fetch recent posts and leaderboard in parallel
+                const [postsRes, leaderboardRes] = await Promise.all([
+                    api.get('/moderator/opportunities?page=1&page_size=5'),
+                    api.get('/moderator/leaderboard?period=this_month')
+                ]);
+
+                const mappedPosts = postsRes.data.opportunities.map((item: any) => ({
                     ...item,
                     category: item.category_name,
                     is_live: !item.expired,
                 }));
-                setRecentPosts(mappedData);
+                setRecentPosts(mappedPosts);
+                setLeaderboardData(leaderboardRes.data);
             } catch (error) {
-                console.error("Failed to fetch recent posts:", error);
+                console.error("Failed to fetch dashboard data:", error);
             } finally {
                 setPostsLoading(false);
             }
         };
 
-        fetchRecentPosts();
+        fetchData();
     }, []);
 
     // --- RENDER HELPERS ---
@@ -205,6 +212,13 @@ export default function DashboardHome() {
                 {/* Section C: Quick Actions & Tips */}
                 <Col xs={24} lg={8}>
                     <div className="space-y-6">
+                        {/* Leaderboard Widget */}
+                        <LeaderboardSummary
+                            data={leaderboardData}
+                            loading={postsLoading}
+                            currentUserId={user?.user_id}
+                        />
+
                         <Card title="Quick Actions" variant="borderless" className="shadow-sm">
                             <Link href="/opportunities/create" className="contents">
                                 <Button
