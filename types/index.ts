@@ -12,6 +12,8 @@ export interface Opportunity {
   created_at?: string;
   eligibility?: string; // Added field
   is_verified?: boolean; // Added for status logic
+  creator_name?: string; // Added for Global Opportunities
+  total_engagement?: number; // Added for Global Opportunities
 }
 
 export interface LoginValues {
