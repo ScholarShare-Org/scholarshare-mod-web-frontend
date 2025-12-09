@@ -37,16 +37,19 @@ export interface AuthResponse {
 
 export interface ModeratorProfile {
   id: number;
-  full_name: string;
+  user_id: number;
+  name: string;
   email: string;
-  role: string;
-  image_url?: string;
-  phone_number?: string;
-  institution?: string;
-  employee_id?: string;
-  stats?: {
-    opportunities_created: number;
-    opportunities_verified: number;
-    pending_actions: number;
+  category_id: number | null;
+  category_name: string | null;
+  stats: {
+    total_posts: number;
+    verified_posts: number;
+    pending_posts: number;
+    rejected_posts: number;
+    total_engagement: number;
+    avg_engagement_per_post: number;
   };
+  rank: number;
+  joined_at: string;
 }
