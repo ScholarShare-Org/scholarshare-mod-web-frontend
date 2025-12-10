@@ -321,7 +321,7 @@ export default function GlobalOpportunitiesPage() {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
                 <Title level={2} style={{ margin: 0 }}>Global Opportunities</Title>
                 <Button
                     type="primary"
