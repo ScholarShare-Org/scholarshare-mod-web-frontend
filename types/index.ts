@@ -14,6 +14,12 @@ export interface Opportunity {
   is_verified?: boolean; // Added for status logic
   creator_name?: string; // Added for Global Opportunities
   total_engagement?: number; // Added for Global Opportunities
+  // New Stats for Moderator's Own View
+  total_interested?: number;
+  total_saved?: number;
+  total_applied?: number;
+  total_not_interested?: number;
+  is_archived?: boolean;
 }
 
 export interface LoginValues {
