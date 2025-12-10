@@ -60,7 +60,7 @@ export default function OpportunityDetailsView({
             </div>
 
             <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <Title level={2} style={{ margin: 0 }}>{opportunity.title}</Title>
                     <Tag color={status.color} className="text-sm px-2 py-0.5 m-0 font-semibold uppercase">
                         {status.label}
@@ -172,14 +172,17 @@ export default function OpportunityDetailsView({
                         <div className="sticky top-6">
                             <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 mb-6">
                                 <Title level={5}>Quick Facts</Title>
-                                <Descriptions column={1} size="small" className="mt-4">
-                                    <Descriptions.Item label="Category">
+                                <div className="mt-4 flex flex-col gap-4">
+                                    <div className="flex flex-wrap justify-between items-center gap-1">
+                                        <span className="text-gray-500">Category:</span>
                                         <Tag color="geekblue" variant="filled">{String(categoryName).toUpperCase()}</Tag>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Type">
+                                    </div>
+                                    <div className="flex flex-wrap justify-between items-center gap-1">
+                                        <span className="text-gray-500">Type:</span>
                                         <Text>{opportunity.type || 'N/A'}</Text>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Application Deadline">
+                                    </div>
+                                    <div className="flex flex-wrap justify-between items-center gap-1">
+                                        <span className="text-gray-500">Application Deadline:</span>
                                         <Space className={isExpired ? 'text-red-500' : 'text-gray-700'}>
                                             <CalendarOutlined />
                                             <span className="font-semibold">
@@ -188,8 +191,8 @@ export default function OpportunityDetailsView({
                                                 }) : 'No Deadline'}
                                             </span>
                                         </Space>
-                                    </Descriptions.Item>
-                                </Descriptions>
+                                    </div>
+                                </div>
                             </div>
 
                             <Button
