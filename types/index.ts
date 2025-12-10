@@ -55,6 +55,7 @@ export interface RecentPost {
 export interface ModeratorProfile {
   mod_id: number;
   name: string;
+  email?: string;
   category_name: string | null;
   stats: {
     total_posts: number;

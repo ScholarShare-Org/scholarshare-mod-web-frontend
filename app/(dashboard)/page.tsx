@@ -216,7 +216,7 @@ export default function DashboardHome() {
                         <LeaderboardSummary
                             data={leaderboardData}
                             loading={postsLoading}
-                            currentUserId={user?.user_id}
+                            currentUserId={user?.mod_id}
                         />
 
                         <Card title="Quick Actions" variant="borderless" className="shadow-sm">
