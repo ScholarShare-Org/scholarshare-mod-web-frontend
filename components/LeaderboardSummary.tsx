@@ -40,12 +40,16 @@ export default function LeaderboardSummary({ data, loading, currentUserId }: Lea
                             className={`flex items-center gap-3 p-2 rounded-lg ${entry.rank === 1 ? 'bg-gradient-to-r from-yellow-50 to-white border border-yellow-100' : ''}`}
                         >
                             <div className="w-8 flex justify-center">{renderMedal(entry.rank)}</div>
-                            <Avatar size="small" src={`https://api.dicebear.com/7.x/initials/svg?seed=${entry.name}`} icon={<UserOutlined />} />
+                            <Link href={`/moderator/view/${entry.mod_id}`}>
+                                <Avatar size="small" src={`https://api.dicebear.com/7.x/initials/svg?seed=${entry.name}`} icon={<UserOutlined />} className="cursor-pointer hover:opacity-80 transition-opacity" />
+                            </Link>
                             <div className="flex-1 min-w-0">
-                                <div className="font-semibold truncate text-gray-800">
-                                    {entry.name}
-                                    {entry.mod_id === currentUserId && <Tag color="blue" className="ml-2 text-[10px] m-0 border-0">YOU</Tag>}
-                                </div>
+                                <Link href={`/moderator/view/${entry.mod_id}`} className="hover:underline text-gray-800">
+                                    <div className="font-semibold truncate">
+                                        {entry.name}
+                                        {entry.mod_id === currentUserId && <Tag color="blue" className="ml-2 text-[10px] m-0 border-0">YOU</Tag>}
+                                    </div>
+                                </Link>
                             </div>
                             <div className="font-bold text-blue-600">{entry.total_engagement} pts</div>
                         </div>

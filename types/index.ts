@@ -43,12 +43,18 @@ export interface AuthResponse {
   token_type: string;
 }
 
-export interface ModeratorProfile {
+export interface RecentPost {
   id: number;
-  user_id: number;
+  title: string;
+  category_name: string;
+  engagement: number;
+  image_url: string;
+  created_at: string;
+}
+
+export interface ModeratorProfile {
+  mod_id: number;
   name: string;
-  email: string;
-  category_id: number | null;
   category_name: string | null;
   stats: {
     total_posts: number;
@@ -60,6 +66,7 @@ export interface ModeratorProfile {
   };
   rank: number;
   joined_at: string;
+  recent_posts?: RecentPost[];
 }
 
 export interface LeaderboardEntry {

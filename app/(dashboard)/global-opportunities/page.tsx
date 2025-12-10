@@ -328,7 +328,7 @@ export default function GlobalOpportunitiesPage() {
                     icon={<DownloadOutlined />}
                     onClick={handleExport}
                 >
-                    Download Report
+                    Download List as CSV
                 </Button>
             </div>
 

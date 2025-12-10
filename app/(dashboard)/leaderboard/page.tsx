@@ -5,6 +5,7 @@ import { CrownFilled, FireFilled, RiseOutlined, UserOutlined } from '@ant-design
 import api from '@/lib/api';
 import { useUser } from '@/context/UserContext';
 import { LeaderboardEntry, LeaderboardResponse } from '@/types';
+import Link from 'next/link';
 
 const { Title, Text } = Typography;
 
@@ -56,9 +57,13 @@ export default function LeaderboardPage() {
             key: 'name',
             render: (_: any, record: LeaderboardEntry) => (
                 <div className="flex items-center gap-3">
-                    <Avatar src={`https://api.dicebear.com/7.x/initials/svg?seed=${record.name}`} icon={<UserOutlined />} />
+                    <Link href={`/moderator/view/${record.mod_id}`}>
+                        <Avatar src={`https://api.dicebear.com/7.x/initials/svg?seed=${record.name}`} icon={<UserOutlined />} className="cursor-pointer hover:opacity-80 transition-opacity" />
+                    </Link>
                     <div className="flex flex-col">
-                        <span className="font-semibold">{record.name} {record.mod_id === user?.user_id && <Tag color="blue" className="ml-2 text-xs">YOU</Tag>}</span>
+                        <Link href={`/moderator/view/${record.mod_id}`} className="hover:underline text-gray-900">
+                            <span className="font-semibold">{record.name} {record.mod_id === user?.user_id && <Tag color="blue" className="ml-2 text-xs">YOU</Tag>}</span>
+                        </Link>
                         {record.category_name && <span className="text-xs text-gray-500">{record.category_name}</span>}
                     </div>
                 </div>
@@ -125,11 +130,15 @@ export default function LeaderboardPage() {
                     {topThree[1] && (
                         <div className="flex flex-col items-center animate-slide-up" style={{ animationDelay: '0.1s' }}>
                             <div className="relative">
-                                <Avatar size={64} className="border-4 border-gray-300" src={`https://api.dicebear.com/7.x/initials/svg?seed=${topThree[1].name}`} />
+                                <Link href={`/moderator/view/${topThree[1].mod_id}`}>
+                                    <Avatar size={64} className="border-4 border-gray-300 cursor-pointer hover:border-gray-400 transition-colors" src={`https://api.dicebear.com/7.x/initials/svg?seed=${topThree[1].name}`} />
+                                </Link>
                                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gray-300 text-white text-xs px-2 py-0.5 rounded-full font-bold">#2</div>
                             </div>
                             <div className="mt-4 text-center">
-                                <div className="font-bold">{topThree[1].name}</div>
+                                <Link href={`/moderator/view/${topThree[1].mod_id}`} className="hover:underline text-gray-900">
+                                    <div className="font-bold">{topThree[1].name}</div>
+                                </Link>
                                 <div className="text-blue-600 font-bold">{topThree[1].total_engagement} pts</div>
                             </div>
                             <div className="h-24 w-24 bg-gradient-to-t from-gray-100 to-white mt-2 rounded-t-lg shadow-sm"></div>
@@ -141,11 +150,15 @@ export default function LeaderboardPage() {
                         <div className="flex flex-col items-center z-10 animate-slide-up">
                             <div className="relative mb-2">
                                 <CrownFilled className="text-4xl text-yellow-400 absolute -top-8 left-1/2 -translate-x-1/2 animate-bounce" />
-                                <Avatar size={96} className="border-4 border-yellow-400" src={`https://api.dicebear.com/7.x/initials/svg?seed=${topThree[0].name}`} />
+                                <Link href={`/moderator/view/${topThree[0].mod_id}`}>
+                                    <Avatar size={96} className="border-4 border-yellow-400 cursor-pointer hover:border-yellow-500 transition-colors" src={`https://api.dicebear.com/7.x/initials/svg?seed=${topThree[0].name}`} />
+                                </Link>
                                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-white text-xs px-3 py-0.5 rounded-full font-bold">#1</div>
                             </div>
                             <div className="mt-2 text-center">
-                                <div className="font-bold text-lg">{topThree[0].name}</div>
+                                <Link href={`/moderator/view/${topThree[0].mod_id}`} className="hover:underline text-gray-900">
+                                    <div className="font-bold text-lg">{topThree[0].name}</div>
+                                </Link>
                                 <div className="text-blue-600 text-xl font-bold">{topThree[0].total_engagement} pts</div>
                             </div>
                             <div className="h-32 w-32 bg-gradient-to-t from-yellow-50 to-white mt-2 rounded-t-lg shadow-sm"></div>
@@ -156,11 +169,15 @@ export default function LeaderboardPage() {
                     {topThree[2] && (
                         <div className="flex flex-col items-center animate-slide-up" style={{ animationDelay: '0.2s' }}>
                             <div className="relative">
-                                <Avatar size={64} className="border-4 border-orange-300" src={`https://api.dicebear.com/7.x/initials/svg?seed=${topThree[2].name}`} />
+                                <Link href={`/moderator/view/${topThree[2].mod_id}`}>
+                                    <Avatar size={64} className="border-4 border-orange-300 cursor-pointer hover:border-orange-400 transition-colors" src={`https://api.dicebear.com/7.x/initials/svg?seed=${topThree[2].name}`} />
+                                </Link>
                                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-orange-300 text-white text-xs px-2 py-0.5 rounded-full font-bold">#3</div>
                             </div>
                             <div className="mt-4 text-center">
-                                <div className="font-bold">{topThree[2].name}</div>
+                                <Link href={`/moderator/view/${topThree[2].mod_id}`} className="hover:underline text-gray-900">
+                                    <div className="font-bold">{topThree[2].name}</div>
+                                </Link>
                                 <div className="text-blue-600 font-bold">{topThree[2].total_engagement} pts</div>
                             </div>
                             <div className="h-16 w-24 bg-gradient-to-t from-orange-50 to-white mt-2 rounded-t-lg shadow-sm"></div>
