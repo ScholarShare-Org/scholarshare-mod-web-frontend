@@ -30,7 +30,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const menuItems = [
         { key: '/', icon: <AppstoreOutlined />, label: <Link href="/">Dashboard</Link> },
         { key: '/opportunities/create', icon: <PlusCircleOutlined />, label: <Link href="/opportunities/create">Create New</Link> },
-        { key: '/opportunities', icon: <UnorderedListOutlined />, label: <Link href="/opportunities">All Posts</Link> },
+        { key: '/opportunities', icon: <UnorderedListOutlined />, label: <Link href="/opportunities">My Posts</Link> },
         { key: '/global-opportunities', icon: <GlobalOutlined />, label: <Link href="/global-opportunities">Global Posts</Link> },
         { key: '/leaderboard', icon: <TrophyOutlined />, label: <Link href="/leaderboard">Leaderboard</Link> },
         { key: '/profile', icon: <UserOutlined />, label: <Link href="/profile">Profile</Link> },
