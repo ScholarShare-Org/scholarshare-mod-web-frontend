@@ -62,7 +62,7 @@ export default function LeaderboardPage() {
                     </Link>
                     <div className="flex flex-col">
                         <Link href={`/moderator/view/${record.mod_id}`} className="hover:underline text-gray-900">
-                            <span className="font-semibold">{record.name} {record.mod_id === user?.user_id && <Tag color="blue" className="ml-2 text-xs">YOU</Tag>}</span>
+                            <span className="font-semibold">{record.name} {record.mod_id === user?.mod_id && <Tag color="blue" className="ml-2 text-xs">YOU</Tag>}</span>
                         </Link>
                         {record.category_name && <span className="text-xs text-gray-500">{record.category_name}</span>}
                     </div>
@@ -197,7 +197,7 @@ export default function LeaderboardPage() {
                         rowKey="mod_id"
                         pagination={false}
                         loading={loading}
-                        rowClassName={(record) => record.mod_id === user?.user_id ? 'bg-blue-50' : ''}
+                        rowClassName={(record) => record.mod_id === user?.mod_id ? 'bg-blue-50' : ''}
                     />
                 )}
             </Card>
