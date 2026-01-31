@@ -1,11 +1,11 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, DatePicker, Upload, Typography, Row, Col, App } from 'antd';
-import { UploadOutlined, RocketOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Form, Input, Button, Select, DatePicker, Upload, Typography, Row, Col, App, Tag as AntTag } from 'antd';
+import { UploadOutlined, RocketOutlined, PlusOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
 import { getFriendlyErrorMessage } from '@/lib/error-utils';
-import { OpportunityFormValues } from '@/types';
+import { OpportunityFormValues, Tag } from '@/types';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -14,18 +14,63 @@ const { TextArea } = Input;
 interface Category {
     id: number;
     name: string;
+    post_count: number;
+    tags: Tag[];
 }
+
+// Card section component for consistent styling
+const FormSection = ({ icon, title, subtitle, children }: {
+    icon: string;
+    title: string;
+    subtitle: string;
+    children: React.ReactNode;
+}) => (
+    <div style={{
+        background: '#fff',
+        borderRadius: 12,
+        padding: 24,
+        marginBottom: 24,
+        border: '1px solid #f0f0f0',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+    }}>
+        <div style={{ marginBottom: 20 }}>
+            <Title level={5} style={{ margin: 0, color: '#262626' }}>
+                {icon} {title}
+            </Title>
+            <p style={{ color: '#8c8c8c', fontSize: 13, margin: '4px 0 0 0' }}>
+                {subtitle}
+            </p>
+        </div>
+        {children}
+    </div>
+);
 
 export default function CreateOpportunityPage() {
     const { message } = App.useApp();
     const [loading, setLoading] = useState(false);
     const [imageFile, setImageFile] = useState<File | null>(null);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [keyInsights, setKeyInsights] = useState<string[]>([]);
+    const [insightInput, setInsightInput] = useState('');
+    const [insightsTouched, setInsightsTouched] = useState(false);
+    const [requiredDocs, setRequiredDocs] = useState<string[]>([]);
+    const [docInput, setDocInput] = useState('');
+    const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+    const [tagsTouched, setTagsTouched] = useState(false);
     const [form] = Form.useForm();
     const router = useRouter();
 
+    // Watch category selection for tag filtering
+    const selectedCategory = Form.useWatch('category', form);
+
+    // Get tags from selected category
+    const filteredTags = useMemo(() => {
+        if (!selectedCategory) return [];
+        const category = categories.find(cat => cat.id === selectedCategory);
+        return category?.tags || [];
+    }, [selectedCategory, categories]);
+
     useEffect(() => {
-        // Fix Authentication: Ensure token exists
         const token = localStorage.getItem('access_token');
         if (!token) {
             router.push('/login');
@@ -35,32 +80,94 @@ export default function CreateOpportunityPage() {
         const fetchCategories = async () => {
             try {
                 const res = await api.get('/moderator/categories');
-                // The API returns a raw array for this endpoint based on OpenAPI spec
-                const categoriesData = Array.isArray(res.data) ? res.data : (res.data.items || res.data.categories || []);
+                const categoriesData = res.data.categories || res.data || [];
                 setCategories(categoriesData);
             } catch (error) {
                 console.error('Failed to fetch categories:', error);
                 message.error('Failed to load categories');
             }
         };
+
         fetchCategories();
     }, [message, router]);
 
+    useEffect(() => {
+        if (selectedCategory) {
+            setSelectedTagIds([]);
+            setTagsTouched(false);
+        }
+    }, [selectedCategory]);
+
+    const toggleTag = (tagId: number) => {
+        setSelectedTagIds(prev =>
+            prev.includes(tagId)
+                ? prev.filter(id => id !== tagId)
+                : [...prev, tagId]
+        );
+    };
+
+    const clearAllTags = () => {
+        setSelectedTagIds([]);
+    };
+
+    const handleAddInsight = () => {
+        const trimmedInsight = insightInput.trim();
+        if (trimmedInsight && !keyInsights.includes(trimmedInsight)) {
+            setKeyInsights([...keyInsights, trimmedInsight]);
+            setInsightInput('');
+        }
+    };
+
+    const handleRemoveInsight = (insightToRemove: string) => {
+        setKeyInsights(keyInsights.filter(insight => insight !== insightToRemove));
+    };
+
+    // Handle adding a required document
+    const handleAddDoc = () => {
+        const trimmedDoc = docInput.trim();
+        if (trimmedDoc && !requiredDocs.includes(trimmedDoc)) {
+            setRequiredDocs([...requiredDocs, trimmedDoc]);
+            setDocInput('');
+        }
+    };
+
+    // Handle removing a required document
+    const handleRemoveDoc = (docToRemove: string) => {
+        setRequiredDocs(requiredDocs.filter(doc => doc !== docToRemove));
+    };
+
     const onFinish = async (values: OpportunityFormValues) => {
+        setInsightsTouched(true);
+        setTagsTouched(true);
+
+        if (keyInsights.length === 0) {
+            message.error('Please add at least one key insight');
+            return;
+        }
+
+        if (selectedTagIds.length === 0) {
+            message.error('Please select at least one tag');
+            return;
+        }
+
         setLoading(true);
         let opportunityId: number | undefined;
 
         try {
-            // 1. Create Opportunity
             const payload = {
                 title: values.title,
-                description: `${values.short_description}\n\n${values.full_description}`, // Combined short + full description
+                description: values.description,
                 eligibility: values.eligibility_criteria || '',
-                category_id: Number(values.category), // Ensure it is sent as a Number
-                type: 'scholarship', // Default or add field for type
-                source: values.source_url,
+                category_id: Number(values.category),
+                type: 'scholarship',
+                source_url: values.source_url,
+                provider: values.provider,
+                reward: values.reward,
+                location: values.location,
+                key_insights: keyInsights,
+                required_documents: requiredDocs,
                 deadline: values.deadline ? values.deadline.toISOString() : null,
-                image_url: "", // Send empty string initially as requested
+                tag_ids: selectedTagIds,
             };
 
             const res = await api.post('/moderator/opportunities', payload);
@@ -70,7 +177,6 @@ export default function CreateOpportunityPage() {
             if (!opportunityId) {
                 throw new Error("Failed to retrieve Opportunity ID. Server response format mismatch.");
             }
-
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error('Create error:', error);
@@ -82,41 +188,37 @@ export default function CreateOpportunityPage() {
                 router.push('/login');
             }
             setLoading(false);
-            return; // Stop if creation failed
+            return;
         }
 
-        // 2. Upload Image if exists and creation was successful
+        // 2. Upload Image if exists
         if (imageFile && opportunityId) {
             try {
                 const formData = new FormData();
-                // Ant Design might wrap the file, check for originFileObj
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const fileToSend = (imageFile as any).originFileObj || imageFile;
                 formData.append('file', fileToSend);
 
-                // Use Axios for upload
                 const uploadUrl = `/moderator/opportunities/${opportunityId}/image`;
                 console.log('Uploading to:', uploadUrl);
 
                 await api.post(uploadUrl, formData, {
                     headers: {
-                        'Content-Type': undefined, // Let browser set multipart/form-data with boundary
+                        'Content-Type': undefined,
                     },
                 });
 
                 message.success('Opportunity Created Successfully!');
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
                 console.error('Upload error:', error);
                 const messageText = getFriendlyErrorMessage(error);
 
-                // If it's a validation error (422), we might want to log the details for debugging
                 if (error.response?.status === 422) {
                     console.error('Validation Details:', error.response.data);
                 }
 
-                // Show the friendly error message
                 message.error(`Image Upload Failed: ${messageText}`);
-                // Still considering it a partial success as the opportunity was created
                 message.warning('Opportunity created but image upload failed.');
             }
         } else {
@@ -125,6 +227,11 @@ export default function CreateOpportunityPage() {
 
         form.resetFields();
         setImageFile(null);
+        setKeyInsights([]);
+        setInsightInput('');
+        setRequiredDocs([]);
+        setDocInput('');
+        setSelectedTagIds([]);
         setLoading(false);
         router.push('/opportunities');
     };
@@ -137,69 +244,397 @@ export default function CreateOpportunityPage() {
     };
 
     return (
-        <div className="max-w-4xl mx-auto">
-            <div className="mb-6 border-b pb-4">
-                <Title level={2}>Create New Opportunity</Title>
-                <p className="text-gray-500">Post a new scholarship, internship, or workshop to the student feed.</p>
+        <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 16px' }}>
+            {/* Header */}
+            <div style={{
+                marginBottom: 32,
+                paddingBottom: 24,
+                borderBottom: '1px solid #f0f0f0'
+            }}>
+                <Title level={2} style={{ marginBottom: 8 }}>
+                    <span style={{
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                    }}>
+                        Create New Opportunity
+                    </span>
+                </Title>
+                <p style={{ color: '#8c8c8c', margin: 0, fontSize: 15 }}>
+                    Post a new scholarship, internship, or workshop to help students discover opportunities.
+                </p>
             </div>
 
             <Form form={form} layout="vertical" onFinish={onFinish} requiredMark="optional">
-                <Row gutter={24}>
-                    <Col span={16}>
-                        <Form.Item name="title" label="Opportunity Title" rules={[{ required: true, min: 5 }]}>
-                            <Input placeholder="e.g. Google Generation Scholarship 2025" size="large" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                        <Form.Item name="category" label="Category" rules={[{ required: true }]}>
-                            <Select placeholder="Select Category" size="large">
-                                {categories.map(cat => (
-                                    <Option key={cat.id} value={cat.id}>{cat.name}</Option>
-                                ))}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                </Row>
 
-                <Form.Item name="short_description" label="Short Description (Card View)" rules={[{ required: true, min: 10, max: 350 }]}>
-                    <TextArea rows={2} showCount maxLength={350} placeholder="Brief summary visible on the card..." />
-                </Form.Item>
+                {/* Section 1: Basic Information */}
+                <FormSection
+                    icon="📋"
+                    title="Basic Information"
+                    subtitle="Essential details about the opportunity"
+                >
+                    <Row gutter={24}>
+                        <Col xs={24} md={16}>
+                            <Form.Item name="title" label="Opportunity Title" rules={[{ required: true, min: 5 }]}>
+                                <Input placeholder="e.g. Google Generation Scholarship 2025" size="large" />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={8}>
+                            <Form.Item name="category" label="Category" rules={[{ required: true }]}>
+                                <Select placeholder="Select Category" size="large">
+                                    {categories.map(cat => (
+                                        <Option key={cat.id} value={cat.id}>{cat.name}</Option>
+                                    ))}
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
 
-                <Form.Item name="full_description" label="Full Details & Benefits" rules={[{ required: true, min: 20 }]}>
-                    <TextArea rows={6} placeholder="Detailed explanation..." />
-                </Form.Item>
-
-                <Row gutter={24}>
-                    <Col span={12}>
-                        <Form.Item name="deadline" label="Application Deadline" rules={[{ required: true }]}>
-                            <DatePicker style={{ width: '100%' }} size="large" />
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                        <Form.Item name="source_url" label="Official Application Link" rules={[{ required: true, type: 'url' }]}>
-                            <Input placeholder="https://..." size="large" />
-                        </Form.Item>
-                    </Col>
-                </Row>
-
-                <Form.Item name="eligibility_criteria" label="Eligibility Criteria" rules={[{ required: true, min: 10 }]}>
-                    <TextArea rows={3} placeholder="- Must be a 3rd year student..." />
-                </Form.Item>
-
-                <Form.Item label="Cover Image / Poster">
-                    <Upload
-                        maxCount={1}
-                        listType="picture"
-                        customRequest={handleImageUpload}
-                        showUploadList={{ showRemoveIcon: true }}
-                        onRemove={() => setImageFile(null)}
+                    {/* Tags - Bubble Selection UI */}
+                    <Form.Item
+                        label={
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                                <span>Tags <span style={{ color: '#ff4d4f' }}>*</span></span>
+                                {selectedTagIds.length > 0 && (
+                                    <button
+                                        type="button"
+                                        onClick={clearAllTags}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            color: '#667eea',
+                                            cursor: 'pointer',
+                                            fontSize: 12,
+                                            padding: 0,
+                                            fontWeight: 500
+                                        }}
+                                    >
+                                        Clear all ({selectedTagIds.length})
+                                    </button>
+                                )}
+                            </div>
+                        }
+                        help={tagsTouched && selectedTagIds.length === 0 ? "Please select at least one tag" : undefined}
+                        validateStatus={tagsTouched && selectedTagIds.length === 0 ? "error" : undefined}
                     >
-                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                    </Upload>
-                </Form.Item>
+                        {!selectedCategory ? (
+                            <div style={{
+                                padding: '16px',
+                                background: '#fafafa',
+                                borderRadius: 8,
+                                border: '1px dashed #d9d9d9',
+                                textAlign: 'center'
+                            }}>
+                                <p style={{ color: '#999', fontSize: 14, margin: 0 }}>
+                                    👆 Select a category first to see available tags
+                                </p>
+                            </div>
+                        ) : filteredTags.length === 0 ? (
+                            <div style={{
+                                padding: '16px',
+                                background: '#fafafa',
+                                borderRadius: 8,
+                                border: '1px dashed #d9d9d9',
+                                textAlign: 'center'
+                            }}>
+                                <p style={{ color: '#999', fontSize: 14, margin: 0 }}>
+                                    No tags available for this category
+                                </p>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                                {filteredTags.map(tag => {
+                                    const isSelected = selectedTagIds.includes(tag.id);
+                                    return (
+                                        <button
+                                            key={tag.id}
+                                            type="button"
+                                            onClick={() => toggleTag(tag.id)}
+                                            style={{
+                                                borderRadius: 20,
+                                                padding: '8px 18px',
+                                                fontSize: 14,
+                                                border: '1.5px solid',
+                                                borderColor: isSelected ? '#667eea' : '#e8e8e8',
+                                                backgroundColor: isSelected ? '#667eea' : '#fff',
+                                                color: isSelected ? '#fff' : '#595959',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s ease',
+                                                fontWeight: isSelected ? 500 : 400,
+                                                boxShadow: isSelected ? '0 2px 8px rgba(102, 126, 234, 0.3)' : 'none',
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                if (!isSelected) {
+                                                    e.currentTarget.style.borderColor = '#667eea';
+                                                    e.currentTarget.style.color = '#667eea';
+                                                }
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                if (!isSelected) {
+                                                    e.currentTarget.style.borderColor = '#e8e8e8';
+                                                    e.currentTarget.style.color = '#595959';
+                                                }
+                                            }}
+                                        >
+                                            {isSelected && '✓ '}{tag.name}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </Form.Item>
 
-                <Form.Item className="mt-8">
-                    <Button type="primary" htmlType="submit" icon={<RocketOutlined />} size="large" loading={loading} block>
+                    <Row gutter={24}>
+                        <Col xs={24} md={8}>
+                            <Form.Item name="provider" label="Provider" rules={[{ required: true, message: 'Provider is required' }]}>
+                                <Input placeholder="e.g. Google, AICTE" size="large" />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={8}>
+                            <Form.Item name="reward" label="Reward" rules={[{ required: true, message: 'Reward is required' }]}>
+                                <Input placeholder="e.g. ₹50,000" size="large" prefix="🎁" />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={8}>
+                            <Form.Item name="location" label="Location" rules={[{ required: true, message: 'Location is required' }]}>
+                                <Input placeholder="e.g. Remote" size="large" prefix="📍" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Row gutter={24}>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="deadline" label="Application Deadline" rules={[{ required: true }]}>
+                                <DatePicker style={{ width: '100%' }} size="large" />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
+                            <Form.Item name="source_url" label="Official Application Link" rules={[{ required: true, type: 'url' }]}>
+                                <Input placeholder="https://..." size="large" prefix="🔗" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                </FormSection>
+
+                {/* Section 2: Description & Details */}
+                <FormSection
+                    icon="📝"
+                    title="Description & Details"
+                    subtitle="Tell students what this opportunity is about"
+                >
+                    <Form.Item
+                        name="description"
+                        label="Description"
+                        rules={[{ required: true, min: 20 }]}
+                    >
+                        <TextArea rows={5} placeholder="Describe the opportunity, benefits, timeline, what students will gain..." />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="eligibility_criteria"
+                        label="Eligibility Criteria"
+                        rules={[{ required: true, min: 10 }]}
+                    >
+                        <TextArea rows={3} placeholder="• Must be a 3rd year student&#10;• Minimum 7.0 CGPA&#10;• Open to all branches" />
+                    </Form.Item>
+                </FormSection>
+
+                {/* Section 3: Required Documents */}
+                <FormSection
+                    icon="📄"
+                    title="Required Documents"
+                    subtitle="Documents students need to prepare for application"
+                >
+                    <Form.Item>
+                        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                            <Input
+                                placeholder="e.g. Resume/CV, Recommendation Letter"
+                                value={docInput}
+                                onChange={(e) => setDocInput(e.target.value)}
+                                onPressEnter={(e) => {
+                                    e.preventDefault();
+                                    handleAddDoc();
+                                }}
+                                style={{ flex: 1 }}
+                                size="large"
+                            />
+                            <Button
+                                type="primary"
+                                icon={<PlusOutlined />}
+                                onClick={handleAddDoc}
+                                size="large"
+                                style={{
+                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    border: 'none'
+                                }}
+                            >
+                                Add
+                            </Button>
+                        </div>
+
+                        {requiredDocs.length > 0 ? (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                                {requiredDocs.map((doc, index) => (
+                                    <AntTag
+                                        key={index}
+                                        closable
+                                        onClose={() => handleRemoveDoc(doc)}
+                                        style={{
+                                            padding: '6px 14px',
+                                            fontSize: 14,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 6,
+                                            borderRadius: 20,
+                                            background: '#f6ffed',
+                                            border: '1px solid #b7eb8f'
+                                        }}
+                                    >
+                                        📄 {doc}
+                                    </AntTag>
+                                ))}
+                            </div>
+                        ) : (
+                            <div style={{
+                                padding: '20px',
+                                background: '#fafafa',
+                                borderRadius: 8,
+                                border: '1px dashed #d9d9d9',
+                                textAlign: 'center'
+                            }}>
+                                <p style={{ color: '#999', fontSize: 14, margin: 0 }}>
+                                    No documents added yet. Add items like &quot;Resume&quot;, &quot;Transcript&quot;, or &quot;Cover Letter&quot;
+                                </p>
+                            </div>
+                        )}
+                    </Form.Item>
+                </FormSection>
+
+                {/* Section 4: Key Insights */}
+                <FormSection
+                    icon="💡"
+                    title="Key Insights"
+                    subtitle="Quick highlights that make this opportunity stand out"
+                >
+                    <Form.Item
+                        required
+                        help={insightsTouched && keyInsights.length === 0 ? "Add at least one key insight" : undefined}
+                        validateStatus={insightsTouched && keyInsights.length === 0 ? "error" : undefined}
+                    >
+                        <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
+                            <Input
+                                placeholder="e.g. No application fee required"
+                                value={insightInput}
+                                onChange={(e) => setInsightInput(e.target.value)}
+                                onPressEnter={(e) => {
+                                    e.preventDefault();
+                                    handleAddInsight();
+                                }}
+                                style={{ flex: 1 }}
+                                size="large"
+                            />
+                            <Button
+                                type="primary"
+                                icon={<PlusOutlined />}
+                                onClick={handleAddInsight}
+                                size="large"
+                                style={{
+                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    border: 'none'
+                                }}
+                            >
+                                Add
+                            </Button>
+                        </div>
+
+                        {keyInsights.length > 0 ? (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                                {keyInsights.map((insight, index) => (
+                                    <AntTag
+                                        key={index}
+                                        closable
+                                        onClose={() => handleRemoveInsight(insight)}
+                                        style={{
+                                            padding: '6px 14px',
+                                            fontSize: 14,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 6,
+                                            borderRadius: 20,
+                                            background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
+                                            border: '1px solid #667eea40'
+                                        }}
+                                    >
+                                        ✨ {insight}
+                                    </AntTag>
+                                ))}
+                            </div>
+                        ) : (
+                            <div style={{
+                                padding: '20px',
+                                background: '#fafafa',
+                                borderRadius: 8,
+                                border: '1px dashed #d9d9d9',
+                                textAlign: 'center'
+                            }}>
+                                <p style={{ color: '#999', fontSize: 14, margin: 0 }}>
+                                    No insights added yet. Add quick highlights like &quot;No application fee&quot; or &quot;Remote friendly&quot;
+                                </p>
+                            </div>
+                        )}
+                    </Form.Item>
+                </FormSection>
+
+                {/* Section 5: Cover Image */}
+                <FormSection
+                    icon="🖼️"
+                    title="Cover Image"
+                    subtitle="Optional - Add an attractive poster or banner"
+                >
+                    <Form.Item>
+                        <Upload.Dragger
+                            maxCount={1}
+                            listType="picture"
+                            customRequest={handleImageUpload}
+                            showUploadList={{ showRemoveIcon: true }}
+                            onRemove={() => setImageFile(null)}
+                            style={{
+                                borderRadius: 8,
+                                border: '2px dashed #e8e8e8',
+                                background: '#fafafa'
+                            }}
+                        >
+                            <p className="ant-upload-drag-icon">
+                                <UploadOutlined style={{ fontSize: 32, color: '#667eea' }} />
+                            </p>
+                            <p style={{ color: '#595959', marginBottom: 4 }}>
+                                Click or drag image to upload
+                            </p>
+                            <p style={{ color: '#8c8c8c', fontSize: 13 }}>
+                                Recommended: 1200x630px for best display
+                            </p>
+                        </Upload.Dragger>
+                    </Form.Item>
+                </FormSection>
+
+                {/* Submit Button */}
+                <Form.Item style={{ marginBottom: 40 }}>
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        icon={<RocketOutlined />}
+                        size="large"
+                        loading={loading}
+                        block
+                        style={{
+                            height: 52,
+                            fontSize: 16,
+                            fontWeight: 500,
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            border: 'none',
+                            boxShadow: '0 4px 14px rgba(102, 126, 234, 0.4)'
+                        }}
+                    >
                         Publish Opportunity
                     </Button>
                 </Form.Item>

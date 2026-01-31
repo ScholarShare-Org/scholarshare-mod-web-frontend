@@ -7,19 +7,27 @@ export interface Opportunity {
   type: string;
   deadline: string;
   source: string;
+  source_url?: string; // New schema field
   expired: boolean;
   image_url?: string;
   created_at?: string;
-  eligibility?: string; // Added field
-  is_verified?: boolean; // Added for status logic
-  creator_name?: string; // Added for Global Opportunities
-  total_engagement?: number; // Added for Global Opportunities
+  eligibility?: string;
+  is_verified?: boolean;
+  creator_name?: string;
+  total_engagement?: number;
   // New Stats for Moderator's Own View
   total_interested?: number;
   total_saved?: number;
   total_applied?: number;
   total_not_interested?: number;
   is_archived?: boolean;
+  // New schema fields
+  provider?: string;
+  reward?: string;
+  location?: string;
+  key_insights?: string[];
+  required_documents?: string[];
+  tags?: Tag[];
 }
 
 export interface LoginValues {
@@ -27,15 +35,26 @@ export interface LoginValues {
   password: string;
 }
 
+export interface Tag {
+  id: number;
+  name: string;
+}
+
 export interface OpportunityFormValues {
   title: string;
   category: number;
-  short_description: string;
-  full_description: string;
+  description: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deadline: any;
   source_url: string;
   eligibility_criteria?: string;
+  // New fields
+  provider: string;
+  reward: string;
+  location: string;
+  key_insights: string[];
+  required_documents: string[];
+  tag_ids: number[];
 }
 
 export interface AuthResponse {
