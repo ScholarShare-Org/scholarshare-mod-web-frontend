@@ -25,14 +25,7 @@ const FormSection = ({ icon, title, subtitle, children }: {
     subtitle: string;
     children: React.ReactNode;
 }) => (
-    <div style={{
-        background: '#fff',
-        borderRadius: 12,
-        padding: 24,
-        marginBottom: 24,
-        border: '1px solid #f0f0f0',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
-    }}>
+    <div className="form-section-card">
         <div style={{ marginBottom: 20 }}>
             <Title level={5} style={{ margin: 0, color: '#262626' }}>
                 {icon} {title}
@@ -244,23 +237,11 @@ export default function CreateOpportunityPage() {
     };
 
     return (
-        <div style={{ maxWidth: 900, margin: '0 auto', padding: '0 16px' }}>
+        <div className="max-w-4xl mx-auto px-4">
             {/* Header */}
-            <div style={{
-                marginBottom: 32,
-                paddingBottom: 24,
-                borderBottom: '1px solid #f0f0f0'
-            }}>
-                <Title level={2} style={{ marginBottom: 8 }}>
-                    <span style={{
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                    }}>
-                        Create New Opportunity
-                    </span>
-                </Title>
-                <p style={{ color: '#8c8c8c', margin: 0, fontSize: 15 }}>
+            <div className="page-header">
+                <Title level={2} className="page-header-title">Create New Opportunity</Title>
+                <p className="page-header-subtitle">
                     Post a new scholarship, internship, or workshop to help students discover opportunities.
                 </p>
             </div>
@@ -302,7 +283,7 @@ export default function CreateOpportunityPage() {
                                         style={{
                                             background: 'none',
                                             border: 'none',
-                                            color: '#667eea',
+                                            color: '#1890ff',
                                             cursor: 'pointer',
                                             fontSize: 12,
                                             padding: 0,
@@ -318,26 +299,14 @@ export default function CreateOpportunityPage() {
                         validateStatus={tagsTouched && selectedTagIds.length === 0 ? "error" : undefined}
                     >
                         {!selectedCategory ? (
-                            <div style={{
-                                padding: '16px',
-                                background: '#fafafa',
-                                borderRadius: 8,
-                                border: '1px dashed #d9d9d9',
-                                textAlign: 'center'
-                            }}>
-                                <p style={{ color: '#999', fontSize: 14, margin: 0 }}>
+                            <div className="empty-state py-4 px-4 bg-gray-50 border-dashed border border-gray-200 rounded-lg text-center">
+                                <p className="text-gray-400 text-sm m-0">
                                     👆 Select a category first to see available tags
                                 </p>
                             </div>
                         ) : filteredTags.length === 0 ? (
-                            <div style={{
-                                padding: '16px',
-                                background: '#fafafa',
-                                borderRadius: 8,
-                                border: '1px dashed #d9d9d9',
-                                textAlign: 'center'
-                            }}>
-                                <p style={{ color: '#999', fontSize: 14, margin: 0 }}>
+                            <div className="empty-state py-4 px-4 bg-gray-50 border-dashed border border-gray-200 rounded-lg text-center">
+                                <p className="text-gray-400 text-sm m-0">
                                     No tags available for this category
                                 </p>
                             </div>
@@ -355,26 +324,15 @@ export default function CreateOpportunityPage() {
                                                 padding: '8px 18px',
                                                 fontSize: 14,
                                                 border: '1.5px solid',
-                                                borderColor: isSelected ? '#667eea' : '#e8e8e8',
-                                                backgroundColor: isSelected ? '#667eea' : '#fff',
+                                                borderColor: isSelected ? '#1890ff' : '#e8e8e8',
+                                                backgroundColor: isSelected ? '#1890ff' : '#fff',
                                                 color: isSelected ? '#fff' : '#595959',
                                                 cursor: 'pointer',
                                                 transition: 'all 0.2s ease',
                                                 fontWeight: isSelected ? 500 : 400,
-                                                boxShadow: isSelected ? '0 2px 8px rgba(102, 126, 234, 0.3)' : 'none',
+                                                boxShadow: isSelected ? '0 2px 8px rgba(24, 144, 255, 0.3)' : 'none',
                                             }}
-                                            onMouseEnter={(e) => {
-                                                if (!isSelected) {
-                                                    e.currentTarget.style.borderColor = '#667eea';
-                                                    e.currentTarget.style.color = '#667eea';
-                                                }
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                if (!isSelected) {
-                                                    e.currentTarget.style.borderColor = '#e8e8e8';
-                                                    e.currentTarget.style.color = '#595959';
-                                                }
-                                            }}
+                                            className="hover:border-blue-400 hover:text-blue-500"
                                         >
                                             {isSelected && '✓ '}{tag.name}
                                         </button>
@@ -463,10 +421,7 @@ export default function CreateOpportunityPage() {
                                 icon={<PlusOutlined />}
                                 onClick={handleAddDoc}
                                 size="large"
-                                style={{
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                    border: 'none'
-                                }}
+                                className="btn-gradient"
                             >
                                 Add
                             </Button>
@@ -495,14 +450,8 @@ export default function CreateOpportunityPage() {
                                 ))}
                             </div>
                         ) : (
-                            <div style={{
-                                padding: '20px',
-                                background: '#fafafa',
-                                borderRadius: 8,
-                                border: '1px dashed #d9d9d9',
-                                textAlign: 'center'
-                            }}>
-                                <p style={{ color: '#999', fontSize: 14, margin: 0 }}>
+                            <div className="empty-state py-4 px-4 bg-gray-50 border-dashed border border-gray-200 rounded-lg text-center">
+                                <p className="text-gray-400 text-sm m-0">
                                     No documents added yet. Add items like &quot;Resume&quot;, &quot;Transcript&quot;, or &quot;Cover Letter&quot;
                                 </p>
                             </div>
@@ -538,10 +487,7 @@ export default function CreateOpportunityPage() {
                                 icon={<PlusOutlined />}
                                 onClick={handleAddInsight}
                                 size="large"
-                                style={{
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                    border: 'none'
-                                }}
+                                className="btn-gradient"
                             >
                                 Add
                             </Button>
@@ -561,8 +507,8 @@ export default function CreateOpportunityPage() {
                                             alignItems: 'center',
                                             gap: 6,
                                             borderRadius: 20,
-                                            background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
-                                            border: '1px solid #667eea40'
+                                            background: '#f0f5ff',
+                                            border: '1px solid #adc6ff'
                                         }}
                                     >
                                         ✨ {insight}
@@ -570,14 +516,8 @@ export default function CreateOpportunityPage() {
                                 ))}
                             </div>
                         ) : (
-                            <div style={{
-                                padding: '20px',
-                                background: '#fafafa',
-                                borderRadius: 8,
-                                border: '1px dashed #d9d9d9',
-                                textAlign: 'center'
-                            }}>
-                                <p style={{ color: '#999', fontSize: 14, margin: 0 }}>
+                            <div className="empty-state py-4 px-4 bg-gray-50 border-dashed border border-gray-200 rounded-lg text-center">
+                                <p className="text-gray-400 text-sm m-0">
                                     No insights added yet. Add quick highlights like &quot;No application fee&quot; or &quot;Remote friendly&quot;
                                 </p>
                             </div>
@@ -605,7 +545,7 @@ export default function CreateOpportunityPage() {
                             }}
                         >
                             <p className="ant-upload-drag-icon">
-                                <UploadOutlined style={{ fontSize: 32, color: '#667eea' }} />
+                                <UploadOutlined style={{ fontSize: 32, color: '#1890ff' }} />
                             </p>
                             <p style={{ color: '#595959', marginBottom: 4 }}>
                                 Click or drag image to upload
@@ -626,13 +566,11 @@ export default function CreateOpportunityPage() {
                         size="large"
                         loading={loading}
                         block
+                        className="btn-gradient"
                         style={{
                             height: 52,
                             fontSize: 16,
-                            fontWeight: 500,
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            border: 'none',
-                            boxShadow: '0 4px 14px rgba(102, 126, 234, 0.4)'
+                            fontWeight: 500
                         }}
                     >
                         Publish Opportunity

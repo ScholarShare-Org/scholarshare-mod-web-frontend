@@ -96,10 +96,10 @@ export default function LeaderboardPage() {
 
     return (
         <div className="max-w-6xl mx-auto space-y-8">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <Title level={2} style={{ margin: 0 }}>🏆 Leaderboard</Title>
-                    <Text type="secondary">Compete with top moderators and track your impact.</Text>
+            <div className="page-header flex flex-col md:flex-row justify-between items-center gap-4">
+                <div className="animate-fade-in-up">
+                    <Title level={2} className="page-header-title">🏆 Leaderboard</Title>
+                    <p className="page-header-subtitle">Compete with top moderators and track your impact.</p>
                 </div>
                 <Segmented
                     options={[

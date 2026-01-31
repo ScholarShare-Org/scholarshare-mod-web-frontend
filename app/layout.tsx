@@ -9,6 +9,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "ScholarShare Mod Portal",
   description: "Internal portal for managing student opportunities",
+  icons: {
+    icon: "/LOGO_ICON-transparent.png",
+    apple: "/LOGO_ICON-transparent.png",
+  },
 };
 
 export default function RootLayout({

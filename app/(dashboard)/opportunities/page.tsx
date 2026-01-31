@@ -171,11 +171,14 @@ export default function OpportunitiesPage() {
     };
 
     return (
-        <div>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <Title level={2} className="!text-xl sm:!text-2xl md:!text-3xl !m-0">Manage Opportunities</Title>
+        <div className="space-y-6">
+            <div className="page-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="animate-fade-in-up">
+                    <Title level={2} className="page-header-title">Manage Opportunities</Title>
+                    <p className="page-header-subtitle">View, edit, and manage all your posted opportunities.</p>
+                </div>
                 <Link href="/opportunities/create">
-                    <Button type="primary" icon={<PlusOutlined />} size="large">
+                    <Button type="primary" icon={<PlusOutlined />} size="large" className="btn-gradient">
                         Create New
                     </Button>
                 </Link>
@@ -250,6 +253,7 @@ export default function OpportunitiesPage() {
                     rowKey="id"
                     loading={loading}
                     pagination={{ pageSize: 10 }}
+                    className="enhanced-table"
                 />
             ) : (
                 <div className="text-center py-12 bg-white rounded-lg border border-dashed">

@@ -320,13 +320,17 @@ export default function GlobalOpportunitiesPage() {
     ];
 
     return (
-        <div>
-            <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
-                <Title level={2} style={{ margin: 0 }}>Global Opportunities</Title>
+        <div className="space-y-6">
+            <div className="page-header flex flex-wrap justify-between items-center gap-4">
+                <div className="animate-fade-in-up">
+                    <Title level={2} className="page-header-title">Global Opportunities</Title>
+                    <p className="page-header-subtitle">Explore opportunities from all moderators across the platform.</p>
+                </div>
                 <Button
                     type="primary"
                     icon={<DownloadOutlined />}
                     onClick={handleExport}
+                    className="btn-gradient"
                 >
                     Download List as CSV
                 </Button>
@@ -401,6 +405,7 @@ export default function GlobalOpportunitiesPage() {
                     showSizeChanger: true,
                     showTotal: (total) => `Total ${total} items`
                 }}
+                className="enhanced-table"
             />
         </div>
     );

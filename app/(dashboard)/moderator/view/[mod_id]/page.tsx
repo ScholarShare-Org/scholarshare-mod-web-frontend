@@ -98,7 +98,7 @@ export default function ModeratorProfilePage() {
             </Button>
 
             {/* Hero / Identity Card */}
-            <Card variant="borderless" className="mb-8 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50">
+            <Card variant="borderless" className="mb-8 shadow-sm bg-white">
                 <div className="flex flex-col md:flex-row items-center gap-6">
                     <Avatar
                         size={100}

@@ -54,17 +54,18 @@ export default function ProfilePage() {
 
     return (
         <div className="max-w-6xl mx-auto space-y-6">
-            <div className="flex justify-between items-center mb-2">
-                <Title level={2} style={{ margin: 0 }}>Moderator Profile</Title>
+            <div className="page-header animate-fade-in-up">
+                <Title level={2} className="page-header-title">Moderator Profile</Title>
+                <p className="page-header-subtitle">View your contribution stats and impact metrics.</p>
             </div>
 
             {/* Section A: Profile Header Card (Identity & Rank) */}
-            <Card variant="borderless" className="shadow-sm">
+            <Card variant="borderless" className="gradient-header shadow-sm">
                 <div className="flex flex-col md:flex-row items-center gap-6">
                     <Avatar
                         size={100}
                         icon={<UserOutlined />}
-                        className="bg-blue-100 text-blue-600 text-4xl flex items-center justify-center font-bold"
+                        className="avatar-ring bg-blue-100 text-blue-600 text-4xl flex items-center justify-center font-bold"
                     >
                         {/* Initials Logic */}
                         {profile.name ? profile.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : <UserOutlined />}
@@ -99,8 +100,8 @@ export default function ProfilePage() {
             <div>
                 <Title level={4} className="mb-4 text-gray-700">Activity Overview</Title>
                 <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={12} md={6}>
-                        <Card variant="borderless" className="shadow-sm h-full">
+                    <Col xs={24} sm={12} md={6} className="animate-fade-in-up">
+                        <Card variant="borderless" className="stat-card h-full">
                             <Statistic
                                 title="Total Posts"
                                 value={profile.stats.total_posts}
@@ -109,8 +110,8 @@ export default function ProfilePage() {
                             />
                         </Card>
                     </Col>
-                    <Col xs={24} sm={12} md={6}>
-                        <Card variant="borderless" className="shadow-sm h-full border-b-4 border-green-500">
+                    <Col xs={24} sm={12} md={6} className="animate-fade-in-up animate-delay-1">
+                        <Card variant="borderless" className="stat-card stat-card-accent-green h-full">
                             <Statistic
                                 title="Verified"
                                 value={profile.stats.verified_posts}
@@ -119,8 +120,8 @@ export default function ProfilePage() {
                             />
                         </Card>
                     </Col>
-                    <Col xs={24} sm={12} md={6}>
-                        <Card variant="borderless" className="shadow-sm h-full border-b-4 border-yellow-500">
+                    <Col xs={24} sm={12} md={6} className="animate-fade-in-up animate-delay-2">
+                        <Card variant="borderless" className="stat-card stat-card-accent-yellow h-full">
                             <Statistic
                                 title="Pending"
                                 value={profile.stats.pending_posts}
@@ -129,8 +130,8 @@ export default function ProfilePage() {
                             />
                         </Card>
                     </Col>
-                    <Col xs={24} sm={12} md={6}>
-                        <Card variant="borderless" className="shadow-sm h-full border-b-4 border-red-500">
+                    <Col xs={24} sm={12} md={6} className="animate-fade-in-up animate-delay-3">
+                        <Card variant="borderless" className="stat-card stat-card-accent-red h-full">
                             <Statistic
                                 title="Rejected"
                                 value={profile.stats.rejected_posts}

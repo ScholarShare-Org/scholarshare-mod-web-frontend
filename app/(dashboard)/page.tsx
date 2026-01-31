@@ -119,15 +119,15 @@ export default function DashboardHome() {
     return (
         <div className="space-y-8">
             {/* Welcome Section */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <Title level={2} style={{ margin: 0 }}>
+            <div className="page-header flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="animate-fade-in-up">
+                    <Title level={2} className="page-header-title">
                         Welcome back, {user?.name?.split(' ')[0] || 'Moderator'} 👋
                     </Title>
-                    <Text type="secondary">Here's what's happening with your opportunities today.</Text>
+                    <p className="page-header-subtitle">Here's what's happening with your opportunities today.</p>
                 </div>
                 <Link href="/opportunities/create">
-                    <Button type="primary" size="large" icon={<PlusOutlined />}>
+                    <Button type="primary" size="large" icon={<PlusOutlined />} className="btn-gradient">
                         Create Opportunity
                     </Button>
                 </Link>
@@ -135,8 +135,8 @@ export default function DashboardHome() {
 
             {/* Section A: Vital Signs (Stats Grid) */}
             <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card variant="borderless" className="shadow-sm h-full border-l-4 border-yellow-400">
+                <Col xs={24} sm={12} lg={6} className="animate-fade-in-up">
+                    <Card variant="borderless" className="stat-card stat-card-accent-yellow">
                         <Statistic
                             title="Pending Actions"
                             value={user?.stats?.pending_posts || 0}
@@ -145,8 +145,8 @@ export default function DashboardHome() {
                         />
                     </Card>
                 </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card variant="borderless" className="shadow-sm h-full border-l-4 border-green-500">
+                <Col xs={24} sm={12} lg={6} className="animate-fade-in-up animate-delay-1">
+                    <Card variant="borderless" className="stat-card stat-card-accent-green">
                         <Statistic
                             title="Live Opportunities"
                             value={user?.stats?.verified_posts || 0}
@@ -155,8 +155,8 @@ export default function DashboardHome() {
                         />
                     </Card>
                 </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card variant="borderless" className="shadow-sm h-full">
+                <Col xs={24} sm={12} lg={6} className="animate-fade-in-up animate-delay-2">
+                    <Card variant="borderless" className="stat-card stat-card-accent-blue">
                         <Statistic
                             title="Total Contribution"
                             value={user?.stats?.total_posts || 0}
@@ -165,8 +165,8 @@ export default function DashboardHome() {
                         />
                     </Card>
                 </Col>
-                <Col xs={24} sm={12} lg={6}>
-                    <Card variant="borderless" className="shadow-sm h-full">
+                <Col xs={24} sm={12} lg={6} className="animate-fade-in-up animate-delay-3">
+                    <Card variant="borderless" className="stat-card stat-card-accent-purple">
                         <Statistic
                             title="Total Engagement"
                             value={user?.stats?.total_engagement || 0}
